@@ -1,92 +1,116 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NexSosmed - Access</title>
-    <link rel="stylesheet" href="logicuser.css">
+    <title>Masuk / Daftar - NexSosmed</title>
+    <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+        .auth-card { background: var(--card-bg); width: 100%; max-width: 400px; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); border: 1px solid var(--accent); }
+        .auth-header { text-align: center; margin-bottom: 30px; }
+        .auth-header h2 { margin: 10px 0 5px; color: var(--text-main); }
+        .auth-header p { color: var(--text-sub); font-size: 14px; }
+        .switch-btn { background: var(--bg-color); display: flex; padding: 5px; border-radius: 10px; margin-bottom: 20px; }
+        .switch-btn button { flex: 1; border: none; background: transparent; color: var(--text-sub); padding: 10px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.3s; }
+        .switch-btn button.active { background: var(--primary); color: white; }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <div class="auth-box">
-            <div class="form-container">
-                
-                <div class="header">
-                    <div class="logo-svg">
-                        <svg width="60" height="60" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="25" cy="25" r="20" fill="url(#grad2)" />
-                            <path d="M20 15 L32 25 L20 35 L24 25 Z" fill="white" />
-                            <defs>
-                                <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="0%">
-                                    <stop offset="0%" style="stop-color:#00c6ff;" />
-                                    <stop offset="100%" style="stop-color:#0072ff;" />
-                                </linearGradient>
-                            </defs>
-                        </svg>
-                    </div>
-                    <h2 id="form-title">Selamat Datang</h2>
-                    <p id="form-subtitle">Silahkan masuk ke akun NexSosmed anda</p>
-                </div>
 
-                <form id="login-form" class="auth-form active">
-                    <div class="input-group">
-                        <i class="fas fa-envelope"></i>
-                        <input type="email" placeholder="Email" required>
-                    </div>
-                    <div class="input-group">
-                        <i class="fas fa-lock"></i>
-                        <input type="password" placeholder="Password" required>
-                    </div>
-                    <div class="options">
-                        <label><input type="checkbox"> Ingat saya</label>
-                        <a href="#">Lupa Password?</a>
-                    </div>
-                    <button type="submit" class="btn-primary">Masuk</button>
-                    <p class="switch-text">Belum punya akun? <a href="javascript:void(0)" onclick="toggleForm()">Daftar Sekarang</a></p>
-                </form>
-
-                <form id="register-form" class="auth-form">
-                    <div class="input-group">
-                        <i class="fas fa-user"></i>
-                        <input type="text" placeholder="Nama Lengkap" required>
-                    </div>
-                    <div class="input-group">
-                        <i class="fas fa-envelope"></i>
-                        <input type="email" placeholder="Email" required>
-                    </div>
-                    <div class="input-group">
-                        <i class="fas fa-lock"></i>
-                        <input type="password" placeholder="Password" required>
-                    </div>
-                    <div class="input-group">
-                        <i class="fas fa-shield-alt"></i>
-                        <input type="password" placeholder="Konfirmasi Password" required>
-                    </div>
-                    <button type="submit" class="btn-primary">Buat Akun</button>
-                    <p class="switch-text">Sudah punya akun? <a href="javascript:void(0)" onclick="toggleForm()">Login</a></p>
-                </form>
-
-            </div>
+    <div class="auth-card">
+        <div class="auth-header">
+            <i class="fas fa-cube fa-3x" style="color: var(--primary);"></i>
+            <h2>NexSosmed</h2>
+            <p>Platform SMM Terbaik & Termurah</p>
         </div>
+
+        <div class="switch-btn">
+            <button id="tab-login" class="active" onclick="toggleAuth('login')">Masuk</button>
+            <button id="tab-register" onclick="toggleAuth('register')">Daftar</button>
+        </div>
+
+        <form id="form-login" onsubmit="handleAuth(event, 'login')">
+            <div class="input-field-group">
+                <label><i class="fas fa-user"></i> Username</label>
+                <input type="text" name="username" class="main-input" placeholder="Masukkan username" required>
+            </div>
+            <div class="input-field-group">
+                <label><i class="fas fa-lock"></i> Password</label>
+                <input type="password" name="password" class="main-input" placeholder="Masukkan password" required>
+            </div>
+            <button type="submit" class="btn-main-large">Login Sekarang</button>
+        </form>
+
+        <form id="form-register" style="display: none;" onsubmit="handleAuth(event, 'register')">
+            <div class="input-field-group">
+                <label><i class="fas fa-envelope"></i> Email</label>
+                <input type="email" name="email" class="main-input" placeholder="email@contoh.com" required>
+            </div>
+            <div class="input-field-group">
+                <label><i class="fas fa-user"></i> Username</label>
+                <input type="text" name="username" class="main-input" placeholder="Buat username tanpa spasi" required>
+            </div>
+            <div class="input-field-group">
+                <label><i class="fas fa-lock"></i> Password</label>
+                <input type="password" name="password" class="main-input" placeholder="Minimal 6 karakter" required>
+            </div>
+            <button type="submit" class="btn-main-large" style="background: linear-gradient(135deg, #00b09b, #96c93d);">Daftar Akun</button>
+        </form>
     </div>
 
     <script>
-        function toggleForm() {
-            const loginForm = document.getElementById('login-form');
-            const regForm = document.getElementById('register-form');
-            const title = document.getElementById('form-title');
-            const subtitle = document.getElementById('form-subtitle');
-
-            loginForm.classList.toggle('active');
-            regForm.classList.toggle('active');
-
-            if (regForm.classList.contains('active')) {
-                title.innerText = "Daftar Akun";
-                subtitle.innerText = "Bergabung dengan NexSosmed hari ini";
+        function toggleAuth(type) {
+            if (type === 'login') {
+                document.getElementById('form-login').style.display = 'block';
+                document.getElementById('form-register').style.display = 'none';
+                document.getElementById('tab-login').classList.add('active');
+                document.getElementById('tab-register').classList.remove('active');
             } else {
-                title.innerText = "Selamat Datang";
-                subtitle.innerText = "Silahkan masuk ke akun NexSosmed anda";
+                document.getElementById('form-login').style.display = 'none';
+                document.getElementById('form-register').style.display = 'block';
+                document.getElementById('tab-login').classList.remove('active');
+                document.getElementById('tab-register').classList.add('active');
+            }
+        }
+
+        async function handleAuth(e, type) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            const originalText = btn.innerText;
+            btn.innerText = "Loading...";
+            btn.disabled = true;
+
+            const endpoint = type === 'login' ? '/api/auth/login' : '/api/auth/register';
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+
+            try {
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await res.json();
+
+                if (result.success || res.status === 200 || res.status === 201) {
+                    if (type === 'login') {
+                        // SIMPAN SESSION
+                        localStorage.setItem('user_session', JSON.stringify(result.user));
+                        window.location.href = 'index.html';
+                    } else {
+                        alert("Registrasi Berhasil! Silahkan Login.");
+                        toggleAuth('login');
+                    }
+                } else {
+                    alert(result.msg || "Gagal memproses data.");
+                }
+            } catch (err) {
+                alert("Terjadi kesalahan koneksi.");
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
             }
         }
     </script>

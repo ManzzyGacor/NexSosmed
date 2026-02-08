@@ -3,10 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NexSosmed - Solusi Sosmed Anda</title>
+    <title>NexSosmed - Panel SMM Premium</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <style>
+        /* Custom CSS agar Select2 cocok dengan Dark Mode */
+        .select2-container--default .select2-selection--single {
+            background-color: var(--bg-color) !important;
+            border: 1px solid var(--accent) !important;
+            height: 50px !important;
+            border-radius: 12px !important;
+            display: flex;
+            align-items: center;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: var(--text-main) !important;
+            padding-left: 15px;
+        }
+        .select2-dropdown {
+            background-color: var(--card-bg) !important;
+            border: 1px solid var(--accent) !important;
+            color: var(--text-main) !important;
+        }
+        .select2-search__field {
+            background-color: var(--bg-color) !important;
+            color: var(--text-main) !important;
+            border: 1px solid #444 !important;
+        }
+        .select2-results__option--highlighted {
+            background-color: var(--primary) !important;
+        }
+    </style>
 </head>
 <body>
 
@@ -24,26 +54,20 @@
             </svg>
             <span>NexSosmed</span>
         </div>
-        <div class="theme-switch-wrapper">
-            <label class="theme-switch" for="checkbox">
-                <input type="checkbox" id="checkbox" />
-                <div class="slider round">
-                    <i class="fas fa-moon"></i>
-                    <i class="fas fa-sun"></i>
-                </div>
-            </label>
-        </div>
+        <button id="admin-btn-nav" onclick="location.href='admin.html'" style="display:none; background:var(--accent); border:none; color:#fff; padding:5px 10px; border-radius:5px; margin-left:auto; margin-right:10px;">
+            <i class="fas fa-shield-alt"></i> Admin
+        </button>
     </header>
 
     <main id="main-content">
         <section id="dashboard" class="page active">
             <div class="user-card">
                 <div class="user-info">
-                    <p>Selamat Datang, <strong>NexUser</strong></p>
-                    <h1>Rp 250.000</h1>
+                    <p>Selamat Datang, <strong id="display-username">Loading...</strong></p>
+                    <h1 id="display-saldo">Rp 0</h1>
                     <span>Saldo Aktif</span>
                 </div>
-                <div class="user-badge">PLATINUM</div>
+                <div class="user-badge">MEMBER</div>
             </div>
 
             <div class="admin-announcement">
@@ -57,187 +81,121 @@
             <div class="sultan-list">
                 <div class="sultan-item">
                     <div class="sultan-rank">1</div>
-                    <div class="sultan-name">BuzzerGacor</div>
-                    <div class="sultan-total">Rp 12.5M</div>
-                </div>
-                <div class="sultan-item">
-                    <div class="sultan-rank">2</div>
-                    <div class="sultan-name">SultanSosmed</div>
-                    <div class="sultan-total">Rp 8.2M</div>
-                </div>
-                <div class="sultan-item">
-                    <div class="sultan-rank">3</div>
-                    <div class="sultan-name">NexKing</div>
-                    <div class="sultan-total">Rp 5.0M</div>
+                    <div class="sultan-name">ManAdmin</div>
+                    <div class="sultan-total">Rp ∞</div>
                 </div>
             </div>
         </section>
 
-<section id="services" class="page">
-    <div class="section-title">
-        <h3><i class="fas fa-shopping-cart"></i> Buat Pesanan</h3>
-    </div>
-    
-    <div class="order-form-container">
-        <div class="input-field-group">
-            <label>Pilih Kategori</label>
-            <select id="category-select" class="main-input">
-                <option value="">-- Pilih Kategori --</option>
-                <option value="ig-foll">Instagram Followers</option>
-                <option value="tt-views">TikTok Views</option>
-            </select>
-        </div>
-        
-        <div class="input-field-group">
-            <label>Pilih Layanan</label>
-            <select id="service-select" class="main-input">
-                <option value="">-- Pilih Layanan --</option>
-            </select>
-        </div>
-        
-        <div id="service-desc" class="description-box">
-            <p><i class="fas fa-info-circle"></i> Pilih layanan untuk melihat detail, kecepatan, dan garansi.</p>
-        </div>
-        
-        <div class="form-row">
-            <div class="input-field-group">
-                <label>Harga / 1000</label>
-                <input type="text" id="price-per-k" class="main-input readonly" value="Rp 0" readonly>
-            </div>
-            <div class="input-field-group">
-                <label>Minimal Pesan</label>
-                <input type="text" id="min-order" class="main-input readonly" value="0" readonly>
-            </div>
-        </div>
-        
-        <div class="input-field-group">
-            <label>Target / Link</label>
-            <input type="text" id="order-target" class="main-input" placeholder="https://www.instagram.com/p/...">
-        </div>
-        
-        <div class="input-field-group">
-            <label>Jumlah Pesan</label>
-            <input type="number" id="order-quantity" class="main-input" placeholder="Contoh: 1000">
-        </div>
-        
-        <div class="total-price-box">
-            <span>Total Bayar:</span>
-            <h2 id="total-price">Rp 0</h2>
-        </div>
-        
-        <button id="place-order-btn" class="btn-main-large">
-            <i class="fas fa-rocket"></i> Submit Pesanan
-        </button>
-    </div>
-</section>
-
-<section id="topup" class="page">
-    <div class="topup-wrapper">
-        <div class="topup-header">
-            <h3>Isi Saldo</h3>
-            <p>Metode Pembayaran Otomatis & Cepat</p>
-        </div>
-        
-        <div id="topup-form-box" class="topup-card shadow-lg">
-            <div class="input-icon-group">
-                <span class="currency-label">Rp</span>
-                <input type="number" id="topup-amount" placeholder="0" min="1000">
+        <section id="services" class="page">
+            <div class="section-title">
+                <h3><i class="fas fa-shopping-cart"></i> Buat Pesanan</h3>
             </div>
             
-            <div class="quick-amounts">
-                <button onclick="setAmount(10000)">10k</button>
-                <button onclick="setAmount(50000)">50k</button>
-                <button onclick="setAmount(100000)">100k</button>
-            </div>
-            
-            <button onclick="processTopUp()" class="btn-pay-now">
-                <i class="fas fa-qrcode"></i> Bayar Sekarang
-            </button>
-            <p class="min-info">* Minimal pengisian Rp 1.000</p>
-        </div>
-        
-        <div id="qris-display" class="qris-card" style="display: none;">
-            <div class="qris-header">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/a/a2/Logo_QRIS.svg" alt="QRIS" width="80">
-            </div>
-            
-            <div id="qrcode" class="qr-container"></div>
-            
-            <div class="payment-details">
-                <div class="detail-row">
+            <div class="order-form-container">
+                <div class="input-field-group">
+                    <label>Pilih Kategori</label>
+                    <select id="category-select" class="main-input select2-enable" style="width: 100%;">
+                        <option value="">-- Cari Kategori --</option>
+                        </select>
+                </div>
+                
+                <div class="input-field-group">
+                    <label>Pilih Layanan</label>
+                    <select id="service-select" class="main-input select2-enable" style="width: 100%;">
+                        <option value="">-- Cari Layanan --</option>
+                    </select>
+                </div>
+                
+                <div id="service-desc" class="description-box" style="display:none;">
+                    <p id="desc-text"></p>
+                </div>
+                
+                <div class="form-row">
+                    <div class="input-field-group">
+                        <label>Harga / 1000</label>
+                        <input type="text" id="price-per-k" class="main-input readonly" value="Rp 0" readonly>
+                    </div>
+                    <div class="input-field-group">
+                        <label>Minimal Pesan</label>
+                        <input type="text" id="min-order" class="main-input readonly" value="0" readonly>
+                    </div>
+                </div>
+                
+                <div class="input-field-group">
+                    <label>Target / Link</label>
+                    <input type="text" id="order-target" class="main-input" placeholder="Link Profile / Postingan">
+                </div>
+                
+                <div class="input-field-group">
+                    <label>Jumlah Pesan</label>
+                    <input type="number" id="order-quantity" class="main-input" placeholder="Contoh: 1000" oninput="calculateTotal()">
+                </div>
+                
+                <div class="total-price-box">
                     <span>Total Bayar:</span>
-                    <strong id="qris-total">Rp 0</strong>
+                    <h2 id="total-price">Rp 0</h2>
                 </div>
-                <div class="detail-row">
-                    <span>Status:</span>
-                    <span class="status-badge pulse">Menunggu Pembayaran</span>
-                </div>
-                <div class="detail-row">
-                    <span>Expired:</span>
-                    <span id="qris-expired" class="time-text"></span>
-                </div>
+                
+                <button onclick="placeOrder()" id="place-order-btn" class="btn-main-large">
+                    <i class="fas fa-rocket"></i> Submit Pesanan
+                </button>
             </div>
-            
-            <div class="qris-footer">
-                <p>Silahkan scan kode QR di atas menggunakan aplikasi e-wallet atau mobile banking Anda.</p>
-                <button onclick="resetTopUp()" class="btn-cancel">Batalkan</button>
-            </div>
-        </div>
-    </div>
-</section>
+        </section>
 
-        <section id="orders" class="page">
-            <div class="section-title"><h3>Riwayat Pesanan</h3></div>
-            <div class="order-item">
-                <div class="order-head">
-                    <strong>IG Followers S1</strong>
-                    <span class="badge success">Sukses</span>
+        <section id="topup" class="page">
+             <div class="topup-wrapper">
+                <h3>Isi Saldo</h3>
                 </div>
-                <p>Target: @user_testing</p>
-                <small>ID: #12938 | 08 Feb 2024</small>
-            </div>
         </section>
 
         <section id="profile" class="page">
             <div class="profile-card">
                 <div class="profile-img"><i class="fas fa-user-circle"></i></div>
-                <h3>NexUser Official</h3>
-                <p>user@nexsosmed.com</p>
+                <h3 id="profile-name">User</h3>
+                <p id="profile-role">Member</p>
             </div>
             <div class="menu-list">
                 <div class="menu-link"><i class="fas fa-cog"></i> Pengaturan Akun</div>
-                <div class="menu-link"><i class="fas fa-shield-alt"></i> Keamanan</div>
-                <div class="menu-link logout" onclick="location.href='user.html'"><i class="fas fa-sign-out-alt"></i> Keluar</div>
+                <div class="menu-link logout" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Keluar</div>
             </div>
         </section>
     </main>
 
     <nav class="bottom-nav">
-        <div class="nav-item active" onclick="showPage('dashboard', this)">
-            <i class="fas fa-home"></i>
-            <span>Beranda</span>
-        </div>
-        <div class="nav-item" onclick="showPage('services', this)">
-            <i class="fas fa-list"></i>
-            <span>Layanan</span>
-        </div>
-        
+        <div class="nav-item active" onclick="showPage('dashboard', this)"><i class="fas fa-home"></i><span>Beranda</span></div>
+        <div class="nav-item" onclick="showPage('services', this)"><i class="fas fa-list"></i><span>Order</span></div>
         <div class="nav-center">
-            <button class="fab-topup" onclick="showPage('topup', this)">
-                <i class="fas fa-plus"></i>
-            </button>
+            <button class="fab-topup" onclick="showPage('topup', this)"><i class="fas fa-plus"></i></button>
         </div>
-
-        <div class="nav-item" onclick="showPage('orders', this)">
-            <i class="fas fa-history"></i>
-            <span>Pesanan</span>
-        </div>
-        <div class="nav-item" onclick="showPage('profile', this)">
-            <i class="fas fa-user"></i>
-            <span>Profil</span>
-        </div>
+        <div class="nav-item" onclick="showPage('orders', this)"><i class="fas fa-history"></i><span>Riwayat</span></div>
+        <div class="nav-item" onclick="showPage('profile', this)"><i class="fas fa-user"></i><span>Profil</span></div>
     </nav>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="script.js"></script>
+    
+    <script>
+        // INISIALISASI SEARCHABLE DROPDOWN
+        $(document).ready(function() {
+            $('.select2-enable').select2({
+                width: '100%',
+                dropdownParent: $('#services') // Agar dropdown nempel di section services
+            });
+
+            // Saat Kategori Diubah -> Panggil fungsi getServices (di script.js)
+            $('#category-select').on('change', function() {
+                const catName = $(this).val();
+                loadServicesByCategory(catName); 
+            });
+
+            // Saat Layanan Diubah -> Update Harga & Deskripsi
+            $('#service-select').on('change', function() {
+                const serviceId = $(this).val();
+                updateServiceDetails(serviceId);
+            });
+        });
+    </script>
 </body>
 </html>
