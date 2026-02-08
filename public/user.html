@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexSosmed - Access</title>
+    <link rel="stylesheet" href="logicuser.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="auth-box">
+            <div class="form-container">
+                
+                <div class="header">
+                    <div class="logo-svg">
+                        <svg width="60" height="60" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="25" cy="25" r="20" fill="url(#grad2)" />
+                            <path d="M20 15 L32 25 L20 35 L24 25 Z" fill="white" />
+                            <defs>
+                                <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" style="stop-color:#00c6ff;" />
+                                    <stop offset="100%" style="stop-color:#0072ff;" />
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                    </div>
+                    <h2 id="form-title">Selamat Datang</h2>
+                    <p id="form-subtitle">Silahkan masuk ke akun NexSosmed anda</p>
+                </div>
+
+                <form id="login-form" class="auth-form active">
+                    <div class="input-group">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" placeholder="Email" required>
+                    </div>
+                    <div class="input-group">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" placeholder="Password" required>
+                    </div>
+                    <div class="options">
+                        <label><input type="checkbox"> Ingat saya</label>
+                        <a href="#">Lupa Password?</a>
+                    </div>
+                    <button type="submit" class="btn-primary">Masuk</button>
+                    <p class="switch-text">Belum punya akun? <a href="javascript:void(0)" onclick="toggleForm()">Daftar Sekarang</a></p>
+                </form>
+
+                <form id="register-form" class="auth-form">
+                    <div class="input-group">
+                        <i class="fas fa-user"></i>
+                        <input type="text" placeholder="Nama Lengkap" required>
+                    </div>
+                    <div class="input-group">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" placeholder="Email" required>
+                    </div>
+                    <div class="input-group">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" placeholder="Password" required>
+                    </div>
+                    <div class="input-group">
+                        <i class="fas fa-shield-alt"></i>
+                        <input type="password" placeholder="Konfirmasi Password" required>
+                    </div>
+                    <button type="submit" class="btn-primary">Buat Akun</button>
+                    <p class="switch-text">Sudah punya akun? <a href="javascript:void(0)" onclick="toggleForm()">Login</a></p>
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleForm() {
+            const loginForm = document.getElementById('login-form');
+            const regForm = document.getElementById('register-form');
+            const title = document.getElementById('form-title');
+            const subtitle = document.getElementById('form-subtitle');
+
+            loginForm.classList.toggle('active');
+            regForm.classList.toggle('active');
+
+            if (regForm.classList.contains('active')) {
+                title.innerText = "Daftar Akun";
+                subtitle.innerText = "Bergabung dengan NexSosmed hari ini";
+            } else {
+                title.innerText = "Selamat Datang";
+                subtitle.innerText = "Silahkan masuk ke akun NexSosmed anda";
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | NexSosmed</title>
+    <link rel="stylesheet" href="admin.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="admin-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-shield-alt"></i> <span>NexAdmin</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-link active" onclick="showTab('stats')"><i class="fas fa-chart-line"></i> Ringkasan</a>
+                <a href="#" class="nav-link" onclick="showTab('users')"><i class="fas fa-user-edit"></i> Kelola User</a>
+                <a href="#" class="nav-link" onclick="showTab('settings')"><i class="fas fa-cogs"></i> Harga & Margin</a>
+                <a href="index.html" class="nav-link exit"><i class="fas fa-sign-out-alt"></i> Keluar</a>
+            </nav>
+        </aside>
+
+        <main class="content-area">
+            <section id="stats" class="admin-tab active">
+                <div class="stats-grid">
+                    <div class="s-card">
+                        <i class="fas fa-users"></i>
+                        <div><p>Total User</p><h2 id="count-users">0</h2></div>
+                    </div>
+                    <div class="s-card">
+                        <i class="fas fa-money-bill-wave"></i>
+                        <div><p>Profit Est.</p><h2 id="count-profit">Rp 0</h2></div>
+                    </div>
+                    <div class="s-card">
+                        <i class="fas fa-shopping-cart"></i>
+                        <div><p>Pesanan</p><h2 id="count-orders">0</h2></div>
+                    </div>
+                </div>
+                <div class="data-box">
+                    <h3>Pesanan Terbaru</h3>
+                    <div id="table-container"></div>
+                </div>
+            </section>
+
+            <section id="users" class="admin-tab">
+                <div class="data-box">
+                    <h3>Pencarian User</h3>
+                    <div class="search-bar">
+                        <input type="text" id="search-input" placeholder="Masukkan username...">
+                        <button onclick="searchUser()"><i class="fas fa-search"></i> Cari</button>
+                    </div>
+                    
+                    <div id="user-editor" class="editor-card" style="display:none;">
+                        <h4 id="user-name-title">Username</h4>
+                        <div class="input-grid">
+                            <div class="field">
+                                <label>Atur Saldo</label>
+                                <input type="number" id="field-balance">
+                            </div>
+                            <div class="field">
+                                <label>Ganti Password</label>
+                                <input type="text" id="field-pass" placeholder="Password baru">
+                            </div>
+                        </div>
+                        <button class="btn-save" onclick="saveUserChanges()">Simpan Data User</button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="settings" class="admin-tab">
+                <div class="data-box">
+                    <h3>Pengaturan Margin Keuntungan</h3>
+                    <p>Persentase tambahan harga dari harga pusat.</p>
+                    <div class="margin-config">
+                        <input type="number" id="input-margin" value="10">
+                        <span>%</span>
+                        <button onclick="updateMargin()">Simpan Konfigurasi</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script src="admin.js"></script>
+</body>
+</html>
