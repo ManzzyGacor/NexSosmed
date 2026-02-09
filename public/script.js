@@ -132,13 +132,15 @@ async function loadCategories() {
     } catch (err) { console.error("Gagal load layanan"); }
 }
 
+// Ganti fungsi loadServicesByCategory di script.js kamu
 function loadServicesByCategory(catName) {
     const filtered = allServicesData.filter(s => s.category === catName);
     const svcSelect = $('#service-select');
     svcSelect.empty().append('<option value="">-- Cari Layanan --</option>');
     
     filtered.forEach(svc => {
-        const opt = new Option(svc.name, svc.service);
+        // PERBAIKAN: Gunakan svc.id (bukan svc.service) agar terdeteksi provider
+        const opt = new Option(svc.name, svc.id); 
         $(opt).attr('data-price', svc.price);
         $(opt).attr('data-min', svc.min);
         $(opt).attr('data-desc', svc.note || "-");
@@ -160,12 +162,19 @@ function updateServiceDetails() {
 
 function calculateTotal() {
     const qty = document.getElementById('order-quantity').value;
+    // Mengambil angka saja dari field "Harga per 1000" (menghilangkan 'Rp' dan titik)
     const priceText = document.getElementById('price-per-k').value.replace(/[^0-9]/g, '');
     const totalEl = document.getElementById('total-price');
     
     if (qty && priceText) {
-        const total = (qty / 1000) * priceText;
+        // Rumus: (Jumlah / 1000) * Harga per 1000
+        const total = (parseInt(qty) / 1000) * parseInt(priceText);
+        
+        // Tampilkan ke elemen total-price dengan format Rupiah yang rapi
+        // Math.ceil digunakan agar tidak ada angka desimal (dibulatkan ke atas)
         totalEl.innerText = `Rp ${Math.ceil(total).toLocaleString('id-ID')}`;
+    } else {
+        totalEl.innerText = `Rp 0`;
     }
 }
 
@@ -174,6 +183,10 @@ async function placeOrder() {
     const serviceId = $('#service-select').val();
     const target = document.getElementById('order-target').value;
     const qty = document.getElementById('order-quantity').value;
+    
+    // --- TAMBAHAN: Hitung Total Harga untuk dikirim ke Backend ---
+    const priceText = document.getElementById('price-per-k').value.replace(/[^0-9]/g, '');
+    const priceTotal = Math.ceil((parseInt(qty) / 1000) * parseInt(priceText));
     
     // Validasi Input Kosong
     if(!serviceId || !target || !qty) {
@@ -202,35 +215,32 @@ async function placeOrder() {
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
                 action: 'order',
-                userId: session.id, // Untuk pengurangan saldo di DB lokal (opsional)
+                userId: session.id,
                 service: serviceId,
                 data: target,
-                quantity: qty
+                quantity: parseInt(qty),
+                priceTotal: priceTotal // <--- WAJIB dikirim agar saldo terpotong
             })
         });
 
         const result = await res.json();
 
         // 5. PENANGANAN RESPON (FIX OBJECT OBJECT)
-        // Cek dokumentasi: Sukses jika status == true
         if (result.status === true) {
             // Sukses: result.data.id berisi ID Order
             alert("✅ Pesanan Berhasil!\nID Order: " + result.data.id);
             
-            // Kurangi saldo tampilan secara instan (Visual saja)
-            // (Logika pengurangan saldo asli harusnya dihandle di backend juga)
-            // location.reload(); 
+            // Refresh halaman agar saldo di header terupdate otomatis
+            location.reload(); 
         } else {
-            // Gagal: result.data berisi { msg: "Pesan error" }
+            // Gagal: Ambil pesan error yang rapi
             let pesanError = "Gagal memproses pesanan.";
             
             if (result.data && result.data.msg) {
-                // INI KUNCINYA: Ambil properti .msg
                 pesanError = result.data.msg; 
             } else if (typeof result.data === 'string') {
                 pesanError = result.data;
             } else {
-                // Jika format aneh, baru kita stringify
                 pesanError = JSON.stringify(result.data);
             }
 
