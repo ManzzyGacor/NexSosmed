@@ -135,6 +135,30 @@ export default async function handler(req, res) {
 
         return res.status(400).json({ status: false, data: { msg: 'Action tidak valid' } });
 
+        // Di dalam handler api/buzzer.js kamu, tambahkan kondisi ini:
+if (action === 'status') {
+    const { id } = req.body; // ID Pesanan Pusat
+    const response = await axios.post(BASE_URL, qs.stringify({
+        api_key: API_KEY,
+        secret_key: SECRET_KEY,
+        action: 'status',
+        id: id
+    }));
+    return res.status(200).json(response.data);
+}
+
+// Tambahkan juga untuk Refill jika dibutuhkan
+if (action === 'refill') {
+    const { id } = req.body;
+    const response = await axios.post(BASE_URL, qs.stringify({
+        api_key: API_KEY,
+        secret_key: SECRET_KEY,
+        action: 'status_refill',
+        id: id
+    }));
+    return res.status(200).json(response.data);
+}
+        
     } catch (err) {
         console.error("API Error:", err.message);
         return res.status(500).json({ status: false, data: { msg: 'Server Error: ' + err.message } });
