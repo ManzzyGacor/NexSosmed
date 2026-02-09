@@ -77,6 +77,9 @@ function showPage(pageId, element) {
     const navItems = document.querySelectorAll('.nav-item');
     navItems.forEach(item => item.classList.remove('active'));
     
+    if (pageId === 'orders') {
+        loadOrderHistory();
+    }
     if (element) {
         if(element.classList.contains('nav-item')) {
             element.classList.add('active');
@@ -364,4 +367,73 @@ function startPolling(orderId) {
 
     // Berhenti cek otomatis setelah 15 menit agar tidak membebani server
     setTimeout(() => clearInterval(pollInterval), 15 * 60 * 1000);
+}
+
+async function loadOrderHistory() {
+    const session = JSON.parse(localStorage.getItem('user_session'));
+    const container = document.getElementById('order-list-container'); // Pastikan ID ini ada di HTML
+    
+    if (!container) return;
+    container.innerHTML = '<div class="loader-inline"><i class="fas fa-spinner fa-spin"></i> Memuat riwayat...</div>';
+
+    try {
+        // 1. Ambil data dari database kita
+        const res = await fetch(`/api/orders?userId=${session.id}`);
+        const orders = await res.json();
+
+        if (orders.length === 0) {
+            container.innerHTML = '<div class="empty-state">Belum ada riwayat pesanan.</div>';
+            return;
+        }
+
+        let html = `
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>ID Order</th>
+                        <th>Target</th>
+                        <th>Jumlah</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        for (const order of orders) {
+            // 2. Ambil status asli dari Provider secara realtime
+            const statusRes = await fetch('/api/buzzer', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ action: 'status', id: order.orderIdPusat })
+            });
+            const statusData = await statusRes.json();
+            
+            // Gunakan status dari provider jika ada, jika tidak gunakan status DB
+            const liveStatus = statusData.status ? statusData.data.status : order.status;
+            const badgeClass = getStatusClass(liveStatus);
+
+            html += `
+                <tr>
+                    <td><small>#${order.orderIdPusat}</small></td>
+                    <td><div class="truncate">${order.target}</div></td>
+                    <td>${order.quantity}</td>
+                    <td><span class="status-badge ${badgeClass}">${liveStatus}</span></td>
+                </tr>
+            `;
+        }
+
+        html += '</tbody></table>';
+        container.innerHTML = html;
+
+    } catch (e) {
+        container.innerHTML = '<div class="error-msg">Gagal memuat data.</div>';
+    }
+}
+
+function getStatusClass(status) {
+    status = status.toLowerCase();
+    if (status.includes('success')) return 'bg-success';
+    if (status.includes('process') || status.includes('progress')) return 'bg-warning';
+    if (status.includes('error') || status.includes('fail') || status.includes('partial')) return 'bg-danger';
+    return 'bg-secondary';
 }
