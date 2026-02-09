@@ -94,5 +94,32 @@ async function updateUser() {
         alert("Gagal update");
     }
 }
+async function updateMargin() {
+    const marginValue = document.getElementById('margin-input').value;
+    const session = JSON.parse(localStorage.getItem('user_session'));
+
+    try {
+        const res = await fetch('/api/admin-control', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'update_margin',
+                adminUser: session.username, // pastikan 'man'
+                margin: marginValue
+            })
+        });
+
+        const result = await res.json();
+        
+        if (res.ok) {
+            alert("✅ " + result.msg); // Muncul notifikasi sukses
+            location.reload(); // Refresh untuk melihat perubahan profit
+        } else {
+            alert("❌ Gagal: " + result.msg);
+        }
+    } catch (e) {
+        alert("Terjadi kesalahan sistem");
+    }
+}
 // Jalankan saat pertama buka
 loadStats();
