@@ -170,110 +170,188 @@ function calculateTotal() {
 }
 
 async function placeOrder() {
+    // 1. Ambil Input
     const serviceId = $('#service-select').val();
     const target = document.getElementById('order-target').value;
     const qty = document.getElementById('order-quantity').value;
     
-    if(!serviceId || !target || !qty) return alert("Lengkapi data pesanan!");
+    // Validasi Input Kosong
+    if(!serviceId || !target || !qty) {
+        return alert("Mohon lengkapi semua data pesanan (Layanan, Target, Jumlah)!");
+    }
 
-    const session = JSON.parse(localStorage.getItem('user_session'));
+    // 2. Cek Session User
+    const sessionRaw = localStorage.getItem('user_session');
+    if (!sessionRaw) {
+        alert("Sesi habis, silakan login kembali.");
+        window.location.href = 'user.html';
+        return;
+    }
+    const session = JSON.parse(sessionRaw);
+
+    // 3. UI Loading
     const btn = document.getElementById('place-order-btn');
-    
-    btn.innerHTML = "Memproses..."; btn.disabled = true;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...'; 
+    btn.disabled = true;
 
     try {
+        // 4. Kirim ke Backend Kita
         const res = await fetch('/api/buzzer', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
                 action: 'order',
-                userId: session.id,
+                userId: session.id, // Untuk pengurangan saldo di DB lokal (opsional)
                 service: serviceId,
                 data: target,
                 quantity: qty
             })
         });
+
         const result = await res.json();
-        
-        if (result.status) {
-            alert("Pesanan Berhasil!");
-            // Update saldo lokal
-            // session.balance -= harga... (bisa ditambahkan logika ini)
-            location.reload();
+
+        // 5. PENANGANAN RESPON (FIX OBJECT OBJECT)
+        // Cek dokumentasi: Sukses jika status == true
+        if (result.status === true) {
+            // Sukses: result.data.id berisi ID Order
+            alert("✅ Pesanan Berhasil!\nID Order: " + result.data.id);
+            
+            // Kurangi saldo tampilan secara instan (Visual saja)
+            // (Logika pengurangan saldo asli harusnya dihandle di backend juga)
+            // location.reload(); 
         } else {
-            alert("Gagal: " + result.data);
+            // Gagal: result.data berisi { msg: "Pesan error" }
+            let pesanError = "Gagal memproses pesanan.";
+            
+            if (result.data && result.data.msg) {
+                // INI KUNCINYA: Ambil properti .msg
+                pesanError = result.data.msg; 
+            } else if (typeof result.data === 'string') {
+                pesanError = result.data;
+            } else {
+                // Jika format aneh, baru kita stringify
+                pesanError = JSON.stringify(result.data);
+            }
+
+            alert("❌ Gagal: " + pesanError);
         }
-    } catch (e) { alert("Error koneksi"); }
-    finally { btn.innerHTML = "Submit Pesanan"; btn.disabled = false; }
+
+    } catch (e) { 
+        console.error("Order Error:", e);
+        alert("Terjadi kesalahan sistem: " + e.message); 
+    } finally { 
+        // 6. Kembalikan Tombol
+        btn.innerHTML = originalText; 
+        btn.disabled = false; 
+    }
 }
 
 // ==========================================
-// 4. TOP UP SYSTEM (QRIS)
+// 4. TOP UP SYSTEM (QRIS) - FIXED VERSION
 // ==========================================
 function setAmount(val) {
-    document.getElementById('topup-amount').value = val;
+    const amountInput = document.getElementById('topup-amount');
+    if (amountInput) amountInput.value = val;
 }
 
 function resetTopUp() {
-    if(confirm("Batalkan pembayaran?")) {
+    if(confirm("Yakin ingin membatalkan pembayaran ini?")) {
         document.getElementById('topup-form-box').style.display = 'block';
         document.getElementById('qris-display').style.display = 'none';
-        // Hapus QR lama
-        document.getElementById('qrcode').innerHTML = "";
+        // Bersihkan area QR agar tidak menumpuk saat buat baru
+        const qrContainer = document.getElementById('qrcode');
+        if (qrContainer) qrContainer.innerHTML = "";
     }
 }
 
 async function processTopUp() {
-    const amount = document.getElementById('topup-amount').value;
-    const session = JSON.parse(localStorage.getItem('user_session'));
+    const amountInput = document.getElementById('topup-amount');
+    const amount = amountInput ? amountInput.value : 0;
+    const sessionRaw = localStorage.getItem('user_session');
+    
+    if (!sessionRaw) return alert("Sesi habis, silakan login kembali.");
+    const session = JSON.parse(sessionRaw);
 
-    if (amount < 1000) return alert("Minimal Rp 1.000");
+    if (amount < 1000) return alert("Minimal pengisian adalah Rp 1.000");
 
     const btn = document.querySelector('.btn-pay-now');
-    btn.innerHTML = "Membuat QRIS..."; btn.disabled = true;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyiapkan QRIS...'; 
+    btn.disabled = true;
 
     try {
         const res = await fetch('/api/topup', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ userId: session.id, amount: amount })
+            body: JSON.stringify({ 
+                userId: session.id, 
+                amount: parseInt(amount) 
+            })
         });
+        
         const data = await res.json();
 
+        // PASTIKAN data.payment_number adalah string QRIS asli (000201...)
         if (data.payment_number) {
-            // UI Switch
+            // Sembunyikan form input, tampilkan area QRIS
             document.getElementById('topup-form-box').style.display = 'none';
             document.getElementById('qris-display').style.display = 'block';
             
-            // Render QR Code
-            document.getElementById('qrcode').innerHTML = "";
-            new QRCode(document.getElementById("qrcode"), {
-                text: data.payment_number,
-                width: 200, height: 200
+            // Hapus isi QR lama sebelum membuat yang baru
+            const qrContainer = document.getElementById('qrcode');
+            qrContainer.innerHTML = "";
+
+            // LOGIKA PEMBUATAN QRIS YANG MUDAH DI-SCAN
+            new QRCode(qrContainer, {
+                text: data.payment_number, // Teks mentah dari Pakasir
+                width: 256,               // Ukuran lebih besar agar tidak pecah
+                height: 256,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                // Level H (High) atau M (Medium) membantu scan jika gambar agak buram
+                correctLevel : QRCode.CorrectLevel.M 
             });
 
-            document.getElementById('qris-total').innerText = `Rp ${data.total_payment.toLocaleString('id-ID')}`;
+            // Update info total harga di bawah QR
+            const totalDisplay = document.getElementById('qris-total');
+            if (totalDisplay) {
+                totalDisplay.innerText = `Rp ${data.total_payment.toLocaleString('id-ID')}`;
+            }
             
-            // Mulai cek status otomatis
+            // Mulai pengecekan saldo otomatis (Polling)
             startPolling(data.order_id);
+            
         } else {
-            alert("Gagal membuat QRIS.");
+            alert("Gagal mendapatkan kode pembayaran dari server Pakasir.");
         }
-    } catch (e) { alert("Server Error"); }
-    finally { btn.innerHTML = "Bayar Sekarang"; btn.disabled = false; }
+    } catch (e) { 
+        console.error("Topup Error:", e);
+        alert("Terjadi kesalahan koneksi ke server."); 
+    } finally { 
+        btn.innerHTML = originalText; 
+        btn.disabled = false; 
+    }
 }
 
 function startPolling(orderId) {
-    const interval = setInterval(async () => {
+    // Cek setiap 5 detik apakah pembayaran sudah masuk
+    const pollInterval = setInterval(async () => {
         try {
             const res = await fetch(`/api/check-status?order_id=${orderId}`);
             const data = await res.json();
 
-            if (data.status === 'completed') {
-                clearInterval(interval);
-                alert("Pembayaran Berhasil! Saldo Masuk.");
-                location.reload();
+            // Jika status sukses di database (diupdate oleh webhook.js)
+            if (data.status === 'completed' || data.status === 'success') {
+                clearInterval(pollInterval);
+                alert("Pembayaran Berhasil! Saldo Anda telah diperbarui.");
+                location.reload(); // Refresh untuk update angka saldo di header
             }
-        } catch (e) {}
-    }, 3000);
+        } catch (e) {
+            console.error("Gagal mengecek status pembayaran...");
+        }
+    }, 5000); 
+
+    // Berhenti cek otomatis setelah 15 menit agar tidak membebani server
+    setTimeout(() => clearInterval(pollInterval), 15 * 60 * 1000);
 }
